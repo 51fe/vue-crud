@@ -2,56 +2,50 @@
   <el-form
     ref="form"
     :model="form"
-    label-width="60px"
+    :rules="rules"
+    label-width="80px"
+    class="save-form"
   >
-    <el-form-item label="日期">
+    <el-form-item
+      label="日期"
+      prop="date"
+    >
       <base-date-picker v-model="form.date" />
     </el-form-item>
     <el-form-item
-      :rules="[{ required: true, message: '姓名不能为空', trigger: 'blur' }]"
       label="姓名"
       prop="userName"
     >
-      <el-input
-        v-model="form.userName"
-        placeholder="请输入"
-        clearable
-      />
+      <base-input v-model="form.userName" />
     </el-form-item>
     <el-form-item
-      :rules="[{ required: true, message: '省份不能为空' }]"
-      label="省份"
-      prop="province"
+      label="市区"
+      prop="area"
     >
-      <base-select
-        v-model.number="form.province"
-        :options="provinces"
+      <area-cascader
+        v-model="form.area"
+        @select="form.areaName=$event.join('')"
       />
     </el-form-item>
-    <el-form-item label="市区">
-      <base-input v-model="form.city" />
-    </el-form-item>
     <el-form-item
-      :rules="[{ required: true, message: '地址不能为空', trigger: 'blur' }]"
       label="地址"
       prop="address"
     >
       <base-input v-model="form.address" />
     </el-form-item>
     <el-form-item
-      :rules="[{ validator: zipValidator }]"
-      label="邮编"
-      prop="zip"
+      label="手机号"
+      prop="mobile"
     >
-      <base-input v-model="form.zip" />
+      <base-input v-model="form.mobile" />
     </el-form-item>
-    <el-form-item align="right">
+    <el-form-item class="footer-item">
       <el-button @click="$emit('cancel')">
         取 消
       </el-button>
       <el-button
-        :loading="loading"
         type="primary"
+        :loading="loading"
         @click="handleSubmit"
       >
         确 定
@@ -61,14 +55,14 @@
 </template>
 
 <script>
-import { provinces } from "../constants";
-import { zipValidator } from "../utils/validate";
-import BaseInput from "./BaseInput";
-import BaseDatePicker from "./BaseDatePicker";
-import BaseSelect from "./BaseSelect";
+import { receiptRules } from '../utils/validate'
+import AreaCascader from './AreaCascader/index.vue'
+import BaseInput from './BaseInput.vue'
+import BaseDatePicker from './BaseDatePicker.vue'
+
 export default {
-  name: "SaveForm",
-  components: {BaseSelect, BaseDatePicker, BaseInput},
+  name: 'SaveForm',
+  components: { AreaCascader, BaseInput, BaseDatePicker },
   props: {
     value: {
       type: Object,
@@ -77,32 +71,50 @@ export default {
     loading: {
       type: Boolean,
       default: false
+    },
+    opened: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
-      provinces,
-      zipValidator
+      form: this.value,
+      rules: receiptRules
     }
   },
-  computed: {
-    form: {
-      get() {
-        return this.value
-      },
-      set(value) {
-        this.$emit("input", value)
+  watch: {
+    opened(newValue) {
+      if (newValue) {
+        this.$nextTick(() => {
+          this.$refs.form.clearValidate()
+        })
       }
     }
   },
   methods: {
     handleSubmit() {
       this.$refs.form.validate((valid) => {
-        if (valid) {
-          this.$emit("submit")
+        if (valid || this.ignoreValidation) {
+          this.$emit('submit', this.form)
         }
       })
     }
   }
 }
 </script>
+
+<style lang="less">
+.save-form {
+  .el-input {
+    width: 100%;
+  }
+  .footer-item {
+    margin-bottom: 0;
+    .el-form-item__content {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+}
+</style>

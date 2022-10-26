@@ -1,6 +1,6 @@
 /**
  * Parse the time to string
- * @param {(Object|string|number)} time
+ * @param {(Date|string|number)} time
  * @param {string} format
  * @returns {string | null}
  */
@@ -40,7 +40,7 @@ export function parseDateTime(time, format ='{y}-{m}-{d} {h}:{i}:{s}') {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') { return ['一', '二', '三', '四', '五', '六', '日'][value ] }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -53,9 +53,28 @@ export function parseDateTime(time, format ='{y}-{m}-{d} {h}:{i}:{s}') {
  * @returns {string|*}
  */
 export function getLabel(list, value) {
-  const found = list?.find((item) => item.value === value);
-  if (found) return found.label;
-  return "";
+  const found = list?.find((item) => item.value == value)
+  if (found) return found.label
+  return ''
+}
+
+/**
+ * 根据区码查找区名
+ * @param list
+ * @param value
+ * @returns {string|*}
+ */
+export function getAreaNameByCode(list, value) {
+  if(Array.isArray(list)) {
+    for (const item of list) {
+      if (item.value === value) {
+        return item.label
+      } else if (item.children?.length > 0) {
+        return getAreaNameByCode(item.children, value)
+      }
+    }
+  }
+  return ''
 }
 
 /**

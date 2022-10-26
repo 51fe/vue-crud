@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly by default 1`] = `
+<div class="pagination-container">
+  <div class="el-pagination"><span class="el-pagination__total">共 32 条</span><span class="el-pagination__sizes"><div class="el-select el-select--mini"><!----><div class="el-input el-input--mini el-input--suffix"><!----><input type="text" readonly="readonly" autocomplete="off" placeholder="请选择" class="el-input__inner"><!----><span class="el-input__suffix"><span class="el-input__suffix-inner"><i class="el-select__caret el-input__icon el-icon-arrow-up"></i><!----><!----><!----><!----><!----></span>
+    <!----></span>
+    <!---->
+    <!---->
+  </div>
+  <transition-stub name="el-zoom-in-top">
+    <div class="el-select-dropdown el-popper" style="display: none;">
+      <div class="el-scrollbar" style="display: none;">
+        <div class="el-select-dropdown__wrap el-scrollbar__wrap el-scrollbar__wrap--hidden-default">
+          <ul class="el-scrollbar__view el-select-dropdown__list">
+            <!---->
+            <li class="el-select-dropdown__item selected"><span>15条/页</span></li>
+            <li class="el-select-dropdown__item"><span>30条/页</span></li>
+            <li class="el-select-dropdown__item"><span>50条/页</span></li>
+            <li class="el-select-dropdown__item"><span>100条/页</span></li>
+          </ul>
+        </div>
+        <div class="el-scrollbar__bar is-horizontal">
+          <div class="el-scrollbar__thumb" style="width: 0px; transform: translateX(0%); webkit-transform: translateX(0%);"></div>
+        </div>
+        <div class="el-scrollbar__bar is-vertical">
+          <div class="el-scrollbar__thumb" style="height: 0px; transform: translateY(0%); webkit-transform: translateY(0%);"></div>
+        </div>
+      </div>
+      <p class="el-select-dropdown__empty">
+        无数据
+      </p>
+    </div>
+  </transition-stub>
+</div></span><button type="button" disabled="disabled" class="btn-prev"><i class="el-icon el-icon-arrow-left"></i></button>
+<ul class="el-pager">
+  <li class="number active">1</li>
+  <!---->
+  <li class="number">2</li>
+  <!---->
+  <li class="number">3</li>
+</ul><button type="button" class="btn-next"><i class="el-icon el-icon-arrow-right"></i></button><span class="el-pagination__jump">前往<div class="el-input el-pagination__editor is-in-pagination"><!----><input type="number" autocomplete="off" min="1" max="3" class="el-input__inner"><!----><!----><!----><!----></div>页</span></div>
+</div>
+`;

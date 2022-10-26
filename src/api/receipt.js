@@ -1,4 +1,4 @@
-import request from "../utils/request";
+import request from '../utils/request'
 
 export function getReceiptList(params) {
   return request({
@@ -30,7 +30,14 @@ export function editReceipt(data) {
 // 删除
 export function delReceipt(id) {
   return request({
-    url: `/receipts/${id}`,
+    url: `http://localhost:5000/receipts/${id}`,
     method: 'DELETE'
   })
+}
+
+export default  {
+  getReceiptList,
+  addReceipt,
+  editReceipt,
+  delReceipt
 }

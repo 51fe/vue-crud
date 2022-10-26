@@ -1,9 +1,8 @@
 <template>
   <el-table-column
     v-bind="$attrs"
-    min-width="90"
     sortable
-    show-overflow-tooltip
+    min-width="100"
   >
     <template slot-scope="scope">
       {{ parseDateTime(scope.row[$attrs.prop], format) }}
@@ -11,7 +10,7 @@
   </el-table-column>
 </template>
 <script>
-import { parseDateTime } from "../utils";
+import { parseDateTime } from '../utils'
 
 export default {
   name: 'DateColumn',
@@ -19,12 +18,12 @@ export default {
     format: {
       type: String,
       default: '{y}-{m}-{d}'
-    },
+    }
   },
   data() {
     return {
       parseDateTime
     }
-  },
+  }
 }
 </script>

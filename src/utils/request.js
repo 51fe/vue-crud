@@ -10,7 +10,6 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     const method = config.method.toLocaleLowerCase()
-    console.log(config)
     if(['post', 'put'].includes(method)) {
       config.headers['Content-Type'] = 'application/json'
     }
@@ -29,19 +28,19 @@ service.interceptors.response.use(
     const { data, status, config, headers, statusText } = response
     if (status < 200 || status > 300) {
       Message({
-        message: getAction(config) || statusText,
+        message: statusText,
         type: 'error',
         duration: 5 * 1000
       })
     } else {
-      const action = getAction(config)
+      const action = getAction(config, status)
       if(action) {
         Message({
           message: action + '成功',
           type: 'success'
         })
       }
-    const count = headers['x-total-count']
+      const count = headers['x-total-count']
       if(count) {
         return {
           list: data,
@@ -53,7 +52,7 @@ service.interceptors.response.use(
   },
   error => {
     Message({
-      message: error.response?.statusText ?? '未知错误',
+      message: error.message ?? '未知错误',
       type: 'error',
       duration: 5 * 1000
     })
@@ -61,14 +60,19 @@ service.interceptors.response.use(
   }
 )
 
-function getAction(config) {
-  const method = config.method.toLocaleLowerCase()
+function getAction(config, status) {
   let action = ''
-  if(method === 'put') {
-    action = '修改'
-  } else if(method === 'delete') {
-    action = '删除'
+  if(status === 201) {
+    action = '新增'
+  } else {
+    const method = config?.method?.toLocaleLowerCase() ?? ''
+    if (method === 'put') {
+      action = '修改'
+    } else if (method === 'delete') {
+      action = '删除'
+    }
   }
   return action
 }
+
 export default service

@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly by default 1`] = `
+<div class="base-input el-input el-input--suffix">
+  <!----><input type="text" autocomplete="off" max-length="200" placeholder="请输入" class="el-input__inner">
+  <!---->
+  <!---->
+  <!---->
+  <!---->
+</div>
+`;

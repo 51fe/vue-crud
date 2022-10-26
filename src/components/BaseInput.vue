@@ -1,17 +1,27 @@
 <template>
   <el-input
+    :value="value"
     :max-length="200"
-    placeholder="请输入"
+    :placeholder="placeholder"
     clearable
-    v-bind="$attrs"
     class="base-input"
-    v-on="$listeners"
+    @input="$emit('input', $event)"
   />
 </template>
 
 <script>
 export default {
-  name: 'BaseInput'
+  name: 'BaseInput',
+  props: {
+    value: {
+      type: String,
+      default: ''
+    },
+    placeholder: {
+      type: String,
+      default: '请输入'
+    }
+  }
 }
 </script>
 

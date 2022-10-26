@@ -1,287 +1,273 @@
 <template>
   <div id="app">
-    <el-form
-      inline
-      align="right"
-      class="search-form"
-    >
-      <el-form-item>
-        <el-input
-          v-model.trim="query.userName_like"
-          placeholder="请输入姓名"
-          clearable
-          @keyup.enter.native="fetchData"
-        />
-      </el-form-item>
-      <el-form-item>
-        <base-date-picker
-          v-model.trim="query.date_gte"
-          placeholder="开始日期"
-        />
-      </el-form-item>
-      <el-form-item>-</el-form-item>
-      <el-form-item>
-        <base-date-picker
-          v-model.trim="query.date_lte"
-          placeholder="结束日期"
-        />
-      </el-form-item>
-      <el-form-item>
-        <base-select
-          v-model.trim="query.province"
-          :options="provinces"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-search"
-          @click="fetchData"
-        />
-      </el-form-item>
-    </el-form>
-
-    <el-button
-      type="primary"
-      icon="el-icon-plus"
-      @click="toAdd"
-    >
-      新增
-    </el-button>
-    <section class="wrapper">
-      <el-table
-        v-loading="loading"
-        :data="tableData"
-        border
-        style="width: 100%"
+    <search-form @search="handleSearch" />
+    <div class="box">
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        @click="toAdd"
       >
-        <date-column
-          prop="date"
-          label="日期"
-        />
-        <el-table-column
-          prop="userName"
-          label="姓名"
-          sortable
-        />
-        <dict-column
-          :options="provinces"
-          prop="province"
-          label="省份"
-        />
-        <el-table-column
-          prop="city"
-          label="市区"
-        />
-        <el-table-column
-          prop="address"
-          label="地址"
-          min-width="160"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          prop="zip"
-          label="邮编"
-        />
-        <el-table-column
-          fixed="right"
-          label="操作"
-          width="100"
-          align="center"
-        >
-          <template slot-scope="{row, $index}">
-            <el-button
-              type="text"
-              size="small"
-              @click="toDelete(row.id, $index)"
-            >
-              删除
-            </el-button>
-            <el-button
-              type="text"
-              size="small"
-              @click="toEdit(row, $index)"
-            >
-              编辑
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </section>
+        新增
+      </el-button>
+    </div>
+    <el-table
+      v-loading="loading"
+      :data="tableData"
+      :border="true"
+      :height="tableHeight"
+      class="main-table"
+    >
+      <date-column
+        prop="date"
+        label="日期"
+        min-width="120"
+      />
+      <el-table-column
+        prop="userName"
+        label="姓名"
+        sortable
+      />
+      <el-table-column
+        prop="areaName"
+        label="省市区"
+        sortable
+        min-width="100"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="address"
+        label="地址"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="mobile"
+        label="手机号码"
+        min-width="120"
+      />
+      <el-table-column
+        v-if="tableData.length > 0"
+        :fixed="layout ? 'right': false"
+        label="操作"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="{ row }">
+          <el-tag
+            type="danger"
+            size="mini"
+            @click="toDelete(row.id)"
+          >
+            删除
+          </el-tag>
+          <el-tag
+            size="mini"
+            @click="toEdit(row)"
+          >
+            编辑
+          </el-tag>
+        </template>
+      </el-table-column>
+    </el-table>
     <el-dialog
-      v-if="dialogVisible"
       :title="title"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
+      append-to-body
     >
       <save-form
-        v-model="form"
-        :loading="cudLoading"
+        :value="form"
+        :opened="dialogVisible"
+        :loading="saveLoading"
         @submit="handleSubmit"
         @cancel="dialogVisible = false"
       />
     </el-dialog>
-
     <base-pagination
       :total="total"
-      :page.sync="query._page"
-      :limit.sync="query._limit"
-      @pagination="fetchData"
+      :page.sync="params._page"
+      :limit.sync="params._limit"
+      :layout="layout"
+      @pagination="fetchData(params)"
     />
   </div>
 </template>
 
 <script>
-import { provinces } from "./constants";
-import { deepClone } from "./utils";
-import { addReceipt, delReceipt, editReceipt, getReceiptList } from "./api/receipt";
-import SaveForm from "./components/SaveForm";
-import BaseSelect from "./components/BaseSelect";
-import DictColumn from "./components/DictColumn";
-import BaseDatePicker from "./components/BaseDatePicker";
-import BasePagination from "./components/BasePagination";
-import DateColumn from "./components/DateColumn";
+import { deepClone } from './utils'
+import debounce from 'lodash.debounce'
+import { addReceipt, delReceipt, editReceipt, getReceiptList } from './api/receipt'
+import SearchForm from './components/SearchForm.vue'
+import SaveForm from './components/SaveForm.vue'
+import BasePagination from './components/BasePagination.vue'
+import DateColumn from './components/DateColumn.vue'
+import { MessageBox } from 'element-ui'
 
 export default {
-  components: {DateColumn, BasePagination, BaseDatePicker, DictColumn, BaseSelect, SaveForm  },
+  components: { SearchForm, SaveForm, DateColumn, BasePagination },
   data() {
     return {
       dialogVisible: false,
-      index: undefined,
       adding: false,
       loading: false,
-      cudLoading: false,
-      provinces,
+      saveLoading: false,
       form: {},
       tableData: [],
-      query: {
+      params: {
         _page: 1,
-        _limit: 10,
+        _limit: 15,
         _sort: 'id',
         _order: 'desc'
       },
-      total: 0
+      total: 0,
+      layout: undefined,
+      tableHeight: 0
     }
   },
   computed: {
     title() {
-      if (this.adding) return "新增收货";
-      return "编辑收货";
-    },
+      if (this.adding) return '新增收货'
+      return '编辑收货'
+    }
   },
   watch: {
-    cudLoading(newValue) {
-      if(!newValue) {
+    saveLoading(newValue) {
+      if (!newValue) {
         this.dialogVisible = false
       }
     }
   },
   created() {
-    this.fetchData()
+    this.fetchData(this.params)
+  },
+  mounted() {
+    window.addEventListener('resize', debounce(this.responsive, 500))
+    // not relayout when testing
+    if(process.env.NODE_ENV !== 'test') {
+      this.responsive()
+    }
+  },
+  beforeMount() {
+    window.removeEventListener('resize', this.responsive)
   },
   methods: {
+    responsive ()  {
+      if (document.body.clientWidth < 768) {
+        this.layout = 'prev, pager, next'
+      } else {
+        this.layout = undefined
+      }
+      const el = document.querySelector('.search-form')
+      this.tableHeight = document.body?.clientHeight - el?.clientHeight - 110
+    },
+
+    handleSearch(keyword) {
+      // merge params
+      const merged = {
+        ...this.params,
+        _page: 1,
+        ...keyword
+      }
+      this.fetchData(merged)
+    },
+
+    fetchData(params) {
+      this.loading = true
+      getReceiptList(params)
+        .then((data) => {
+          this.loading = false
+          this.tableData = data.list
+          this.total = data.total
+        })
+        .catch(() => {
+          this.loading = false
+        })
+    },
+
+    // fetch first page data
+    refresh() {
+      this.params._page = 1
+      this.fetchData(this.params)
+    },
+
     toAdd() {
       this.adding = true
-      this.dialogVisible = true;
+      this.dialogVisible = true
       this.form = {}
     },
 
-    toEdit(row, index) {
+    toEdit(row) {
       this.adding = false
       this.dialogVisible = true
-      this.index = index
       this.form = deepClone(row)
     },
 
-    toDelete(id, index) {
-      this.$confirm('确定删除?', {
-        type: 'warning'
-      }).then(() => {
-        this.doDelete(id, index)
-      }).catch(() => {
-        console.log('canceled')
+    toDelete(id) {
+      MessageBox.confirm('确定删除?', {
+        title: '提示',
+        type: 'warning',
+        beforeClose: (action, instance, done) => {
+          if (action === 'confirm') {
+            instance.confirmButtonLoading = true
+            instance.confirmButtonText = '执行中...'
+            delReceipt(id).then(() => {
+              instance.confirmButtonLoading = false
+              done()
+              // not call fetchData
+              const index = this.tableData.findIndex(item => item.id === id)
+              this.tableData.splice(index, 1)
+              this.total -= 1
+              if(this.total % this.params._limit === 0) {
+                this.refresh()
+              }
+            })
+          } else {
+            done()
+          }
+        }
       })
     },
 
-    fetchData() {
-      this.loading = true
-      getReceiptList(this.query).then(data => {
-        this.loading = false
-        this.tableData = data.list
-        this.total = data.total
-      }).catch(() => {
-        this.loading = false
-      })
+    handleSubmit(form) {
+      if (this.adding) {
+        this.doAdd(form)
+      } else {
+        this.doEdit(form)
+      }
     },
 
     doAdd(data) {
-      this.cudLoading = true
-      addReceipt(data).then((data) => {
-        this.cudLoading = false
-        // not call fetchData
-        this.tableData.unshift(data)
-        this.total += 1
-      }).catch(() => {
-        this.cudLoading = false
+      this.saveLoading = true
+      addReceipt(data).then(() => {
+        this.saveLoading = false
+        this.refresh()
+      })
+      .catch(() => {
+        this.saveLoading = false
       })
     },
 
     doEdit(data) {
-      this.cudLoading = true
-      editReceipt(data).then((data) => {
-        this.cudLoading = false
+      this.saveLoading = true
+      editReceipt(data).then(() => {
+        this.saveLoading = false
         // not call fetchData
-        this.tableData.splice(this.index, 1, data)
-      }).catch(() => {
-        this.cudLoading = false
+        const index = this.tableData.findIndex(item => item.id === data.id)
+        if (index !== -1) {
+          this.tableData.splice(index, 1, data)
+        }
       })
-    },
-
-    async doDelete(id, index) {
-      this.cudLoading = false
-      delReceipt(id).then(() => {
-        this.cudLoading = false
-        // not call fetchData
-        this.tableData.splice(index, 1)
-        this.total -= 1
-      }).catch(() => {
-        this.cudLoading = false
+      .catch(() => {
+        this.saveLoading = false
       })
-    },
-
-    handleSubmit() {
-      if (this.adding) {
-        this.doAdd(this.form)
-      } else {
-        this.doEdit(this.form)
-      }
     }
   }
 }
 </script>
 
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  overflow: hidden;
-}
+<style lang="less">
 #app {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  padding: 20px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-.search-form .el-date-editor {
-  width: 150px;
-}
-.wrapper {
-  height: calc(100% - 180px);
-  margin-top: 10px;
-  overflow: auto;
-}
-.el-dialog__body .el-select, .el-dialog__body .el-date-editor.el-input {
-  width: 100%;
 }
 </style>

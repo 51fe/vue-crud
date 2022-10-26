@@ -1,26 +1,43 @@
 {
-  "name": "vue-crud-with-json-server",
+  "name": "vue-crud",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit",
+    "coverage": "jest --collect-coverage",
     "lint": "vue-cli-service lint",
     "mock": "json-server --watch db.json"
   },
   "dependencies": {
-    "axios": "^0.21.1",
-    "core-js": "^3.6.5",
+    "axios": "^0.27.2",
+    "core-js": "^3.8.3",
     "element-ui": "^2.15.9",
-    "vue": "^2.6.11"
+    "lodash.debounce": "^4.0.8",
+    "vue": "2.6.14"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.5.0",
-    "@vue/cli-plugin-eslint": "^4.5.0",
-    "@vue/cli-service": "^4.5.0",
-    "babel-eslint": "^10.1.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/vue": "^5.8.3",
+    "@testing-library/user-event": "^14.4.3",
+    "@vue/cli-plugin-babel": "~4.5.19",
+    "@vue/cli-plugin-eslint": "~4.5.19",
+    "@vue/cli-plugin-unit-jest": "~4.5.19",
+    "@vue/cli-service": "~4.5.19",
+    "@vue/test-utils": "^1.0.3",
+    "babel-eslint": "^10.0.3",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "vue-template-compiler": "^2.6.11"
-  }
+    "eslint-plugin-vue": "^6.0.1",
+    "flush-promises": "^1.0.2",
+    "json-server": "^0.17.0",
+    "less": "^3.13.1",
+    "less-loader": "^7.3.0",
+    "vue-template-compiler": "2.6.14"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
 }

@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly by default 1`] = `
+<div class="el-date-editor base-date-picker el-input el-input--prefix el-input--suffix el-date-editor--date">
+  <!----><input type="text" autocomplete="off" name="" placeholder="请选择" class="el-input__inner"><span class="el-input__prefix"><i class="el-input__icon el-icon-date"></i><!----></span><span class="el-input__suffix"><span class="el-input__suffix-inner"><i class="el-input__icon"></i><!----><!----><!----><!----></span>
+  <!----></span>
+  <!---->
+  <!---->
+</div>
+`;
