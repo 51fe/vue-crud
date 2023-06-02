@@ -35,7 +35,7 @@ const defaultValue = {
   total: 3
 }
 
-async function filterData (value, placeholder) {
+async function filterData(value, placeholder) {
   getReceiptList.mockResolvedValue(value)
   const { getByPlaceholderText, getByTitle } = render(App)
   // init call
@@ -48,8 +48,9 @@ async function filterData (value, placeholder) {
   expect(getReceiptList).toHaveBeenCalledTimes(2)
 }
 
-afterEach(async () => {
-  getReceiptList.mockClear()
+beforeEach(() => {
+  jest.resetModules()
+  jest.clearAllMocks()
 })
 
 test('fetch receipts when mounted', async () => {
@@ -92,7 +93,7 @@ test('calls delReceipt to delete', async () => {
   const { findByRole, getByRole } = render(App)
   // init call
   expect(getReceiptList).toHaveBeenCalledTimes(1)
-  const row = await findByRole('row', { name: /李四/})
+  const row = await findByRole('row', { name: /李四/ })
   const btn = within(row).getByText(/删除/)
   await fireEvent.click(btn)
   const submitBtn = getByRole('button', { name: '确定' })
@@ -103,7 +104,7 @@ test('calls delReceipt to delete', async () => {
 
 test('calls editReceipt to edit', async () => {
   getReceiptList.mockResolvedValue(defaultValue)
-  editReceipt.mockResolvedValue( {})
+  editReceipt.mockResolvedValue({})
   const { getByRole, getByDisplayValue, findByRole } = render(App)
   expect(getReceiptList).toHaveBeenCalledTimes(1)
   // only test the row with user name of 孙六

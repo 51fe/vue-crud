@@ -30,12 +30,12 @@ export function editReceipt(data) {
 // 删除
 export function delReceipt(id) {
   return request({
-    url: `http://localhost:5000/receipts/${id}`,
+    url: `/receipts/${id}`,
     method: 'DELETE'
   })
 }
 
-export default  {
+export default {
   getReceiptList,
   addReceipt,
   editReceipt,

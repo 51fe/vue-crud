@@ -6,13 +6,14 @@
     filterable
     clearable
     class="base-select"
+    v-bind="$attrs"
     v-on="$listeners"
   >
     <el-option
       v-for="(item, index) in options"
       :key="index"
-      :label="item[labelKey]"
-      :value="item[valueKey]"
+      :label="item.label"
+      :value="item.value"
     />
   </el-select>
 </template>
@@ -29,14 +30,6 @@ export default {
     options: {
       type: Array,
       default: () => []
-    },
-    labelKey: {
-      type: String,
-      default: 'label'
-    },
-    valueKey: {
-      type: String,
-      default: 'value'
     },
     multiple: {
       type: Boolean,

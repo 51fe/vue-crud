@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { receiptRules } from '../utils/validate'
+import rules from '../utils/rules'
 import AreaCascader from './AreaCascader/index.vue'
 import BaseInput from './BaseInput.vue'
 import BaseDatePicker from './BaseDatePicker.vue'
@@ -71,32 +71,20 @@ export default {
     loading: {
       type: Boolean,
       default: false
-    },
-    opened: {
-      type: Boolean,
-      default: false
     }
   },
   data() {
     return {
       form: this.value,
-      rules: receiptRules
+      rules
     }
   },
-  watch: {
-    opened(newValue) {
-      if (newValue) {
-        this.$nextTick(() => {
-          this.$refs.form.clearValidate()
-        })
-      }
-    }
-  },
+
   methods: {
     handleSubmit() {
       this.$refs.form.validate((valid) => {
-        if (valid || this.ignoreValidation) {
-          this.$emit('submit', this.form)
+        if (valid) {
+          this.$emit('submit', this.form )
         }
       })
     }

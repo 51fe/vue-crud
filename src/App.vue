@@ -12,7 +12,7 @@
     </div>
     <el-table
       v-loading="loading"
-      :data="tableData"
+      :data="tableData.list"
       :border="true"
       :height="tableHeight"
       class="main-table"
@@ -45,7 +45,7 @@
         min-width="120"
       />
       <el-table-column
-        v-if="tableData.length > 0"
+        v-if="tableData.list.length > 0"
         :fixed="layout ? 'right': false"
         label="操作"
         width="100"
@@ -75,15 +75,15 @@
       append-to-body
     >
       <save-form
+        v-if="dialogVisible"
         :value="form"
-        :opened="dialogVisible"
         :loading="saveLoading"
         @submit="handleSubmit"
         @cancel="dialogVisible = false"
       />
     </el-dialog>
     <base-pagination
-      :total="total"
+      :total="tableData.total"
       :page.sync="params._page"
       :limit.sync="params._limit"
       :layout="layout"
@@ -93,7 +93,6 @@
 </template>
 
 <script>
-import { deepClone } from './utils'
 import debounce from 'lodash.debounce'
 import { addReceipt, delReceipt, editReceipt, getReceiptList } from './api/receipt'
 import SearchForm from './components/SearchForm.vue'
@@ -107,26 +106,28 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      adding: false,
       loading: false,
       saveLoading: false,
       form: {},
-      tableData: [],
+      tableData: {
+        list: [],
+        total: 0
+      },
       params: {
         _page: 1,
         _limit: 15,
         _sort: 'id',
         _order: 'desc'
       },
-      total: 0,
+      
       layout: undefined,
       tableHeight: 0
     }
   },
   computed: {
     title() {
-      if (this.adding) return '新增收货'
-      return '编辑收货'
+      if (this.form.id) return '编辑收货'
+      return '新增收货'
     }
   },
   watch: {
@@ -175,8 +176,7 @@ export default {
       getReceiptList(params)
         .then((data) => {
           this.loading = false
-          this.tableData = data.list
-          this.total = data.total
+          this.tableData = data
         })
         .catch(() => {
           this.loading = false
@@ -190,15 +190,13 @@ export default {
     },
 
     toAdd() {
-      this.adding = true
       this.dialogVisible = true
       this.form = {}
     },
 
     toEdit(row) {
-      this.adding = false
       this.dialogVisible = true
-      this.form = deepClone(row)
+      this.form = row
     },
 
     toDelete(id) {
@@ -213,10 +211,11 @@ export default {
               instance.confirmButtonLoading = false
               done()
               // not call fetchData
-              const index = this.tableData.findIndex(item => item.id === id)
-              this.tableData.splice(index, 1)
-              this.total -= 1
-              if(this.total % this.params._limit === 0) {
+              const { list , total } = this.tableData
+              const index = list.findIndex(item => item.id === id)
+              list.splice(index, 1)
+              this.tableData.total -= 1
+              if(total % this.params._limit === 0) {
                 this.refresh()
               }
             })
@@ -228,10 +227,10 @@ export default {
     },
 
     handleSubmit(form) {
-      if (this.adding) {
-        this.doAdd(form)
-      } else {
+      if (this.form.id) {
         this.doEdit(form)
+      } else {
+        this.doAdd(form)
       }
     },
 
@@ -251,9 +250,10 @@ export default {
       editReceipt(data).then(() => {
         this.saveLoading = false
         // not call fetchData
-        const index = this.tableData.findIndex(item => item.id === data.id)
+        const list = this.tableData.list
+        const index = list.findIndex(item => item.id === data.id)
         if (index !== -1) {
-          this.tableData.splice(index, 1, data)
+          list.splice(index, 1, data)
         }
       })
       .catch(() => {
