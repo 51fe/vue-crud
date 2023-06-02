@@ -59,6 +59,11 @@ export default {
         this.$emit('input', value)
       }
     }
+  },
+  mounted() {
+    if(this.$parent.label) {
+      this.$el.querySelector('input').id = this.$parent.prop
+    }
   }
 }
 </script>

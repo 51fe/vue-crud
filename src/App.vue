@@ -76,7 +76,7 @@
     >
       <save-form
         v-if="dialogVisible"
-        :value="form"
+        :value="{...form}"
         :loading="saveLoading"
         @submit="handleSubmit"
         @cancel="dialogVisible = false"

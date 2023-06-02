@@ -17,9 +17,18 @@ export default {
       type: String,
       default: ''
     },
+    id: {
+      type: String,
+      default: ''
+    },
     placeholder: {
       type: String,
       default: '请输入'
+    }
+  },
+  mounted() {
+    if(this.$parent.label) {
+      this.$el.querySelector('input').id = this.$parent.prop
     }
   }
 }

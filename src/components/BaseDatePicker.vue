@@ -23,6 +23,11 @@ export default {
       type: String,
       default: '请选择'
     }
+  },
+  mounted() {
+    if(this.$parent.label) {
+      this.$el.querySelector('input').id = this.$parent.prop
+    }
   }
 }
 </script>
